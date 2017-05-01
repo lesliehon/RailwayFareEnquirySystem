@@ -23,8 +23,18 @@ public class Line {
 		//Split the stop data into array
 		for(int i =0 ; i < stationList.length ; i++){
 			String[] stationData = stationList[i].split(":");
-			this.stops[i] = new Station(stationData[0], stationData[1]);
-			distance[i] = Integer.parseInt(stationData[2]);
+			if(stationData.length ==5){
+				//If data contain currency , create a nonEuroStation Object
+				double rate = Double.parseDouble(stationData[4]);
+				this.stops[i] = new nonEuroStation(stationData[0], stationData[1], stationData[3], rate);
+				distance[i] = Integer.parseInt(stationData[2]);
+			}
+			else{
+				//If not contain currency rate, create a normal station object
+				this.stops[i] = new Station(stationData[0], stationData[1]);
+				distance[i] = Integer.parseInt(stationData[2]);
+			}
+				
 		}
 		//Set the fare
 		String [] Fare = fares.split(":");
@@ -33,6 +43,21 @@ public class Line {
 		crossBorderSurcharge = Integer.parseInt(Fare[2]);
 		reservationSurcharge = Integer.parseInt(Fare[3]);
 		
+	}
+	
+	
+	public Line(String lineName, String stations, String fares , String discount){
+		this(lineName, stations, fares);
+		//discount part
+		String [] discountList = discount.split(" ");
+		//insert the discount information into station information
+		for(int i =0 ; i < discountList.length ; i++){
+			String [] discountListDetail = discountList[i].split(":");
+			stops[i].setchildfreeAge(Integer.parseInt(discountListDetail[0]));
+			stops[i].setchildfareAge(Integer.parseInt(discountListDetail[1]));
+			stops[i].setseniorfareAge(Integer.parseInt(discountListDetail[2]));
+		}
+		//Finish set discount detail
 	}
 	
 	public String getName(){

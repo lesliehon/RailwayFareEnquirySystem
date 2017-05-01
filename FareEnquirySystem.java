@@ -8,13 +8,13 @@ import java.util.Scanner;
 
 public class FareEnquirySystem {
 	public static Scanner sc = new Scanner(System.in);
-
 	public static void main(String args[]) {
-		Train[] trains = new Train[5];
+		Train[] trains = new Train[5]; //create 5 trains
 		Line line = new Line(
 				"Paris-Zurich-Munich",
-				"Paris:France:0 Lyon:France:450 Geneve:Switzerland:600 Zurich:Switzerland:870 St.Gallen:Switzerland:950 Memmingen:Germany:1070 Munich:Germany:1180",
-				"0.06:0.01:30:10");
+				"Paris:France:0 Lyon:France:450 Geneve:Switzerland:600:CHF:1.28 Zurich:Switzerland:870:CHF:1.28 St.Gallen:Switzerland:950:CHF:1.28 Memmingen:Germany:1070 Munich:Germany:1180",
+				"0.06:0.01:30:10" ,
+				"3:11:60 3:11:60 5:15:65 5:15:65 5:15:65 5:14:60 5:14:60");
 		Station stations[] = line.getStops();
 		//Create a Array List to store the availableTrain Information
 		ArrayList<Integer> availableTrainCode = new ArrayList<Integer>();
@@ -121,16 +121,39 @@ public class FareEnquirySystem {
 			return;
 		}
 		
-		//Calculate the train fare
-		double totalfare = trains[trainCode].calculateFare(stations[departureStation], stations[arrivalStation], quantity);
-		BigDecimal newtotalfare = new BigDecimal(totalfare).setScale(0,BigDecimal.ROUND_HALF_UP); // RoundUp Value
+		double tmptotalfare = 0;
+		//Ask user input the age and than output the correct result
+		if(trains[trainCode] instanceof PassengerTrain){//Confirm the user select a passenger train
+			System.out.print("Please input the passenger age: >");
+			int age = sc.nextInt();
+			if( stations[departureStation] instanceof nonEuroStation)
+				tmptotalfare = trains[trainCode].calculateFare(stations[departureStation], stations[arrivalStation],age ,quantity)
+				* ((nonEuroStation) stations[departureStation]).geteuroRate();
+			else
+				tmptotalfare = trains[trainCode].calculateFare(stations[departureStation], stations[arrivalStation],age ,quantity);		
+		}
+		else{
+		//Calculate the train fare if the line without any discount for children
+		//or senior , or user select a cargo train
+			if( stations[departureStation] instanceof nonEuroStation)
+				tmptotalfare = trains[trainCode].calculateFare(stations[departureStation], stations[arrivalStation], quantity)
+				* ((nonEuroStation) stations[departureStation]).geteuroRate();
+			else
+				tmptotalfare = trains[trainCode].calculateFare(stations[departureStation], stations[arrivalStation], quantity);
+		}
+		
+		BigDecimal totalfare = new BigDecimal(tmptotalfare).setScale(0,BigDecimal.ROUND_HALF_UP); // RoundUp Value
+		
 		
 		//Show the result
 		System.out.println("Result:\nFor " + quantity + quantityWord
 				+ " travelling from " + stations[departureStation] + " to "
 				+ stations[arrivalStation] + " on "
 				+ trains[trainCode].getCode());
-		System.out.println("Total Fare: EUR" + newtotalfare + "\nByeBye!");
+		if( stations[departureStation] instanceof nonEuroStation)
+			System.out.println("Total Fare: "+ ( ((nonEuroStation) stations[departureStation]).getCurrency() )+ totalfare + "\nByeBye!");
+		else
+			System.out.println("Total Fare: EUR" + totalfare + "\nByeBye!");
 
 	}
 }

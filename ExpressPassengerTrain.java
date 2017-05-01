@@ -17,6 +17,11 @@ public class ExpressPassengerTrain extends PassengerTrain {
 		return super.calculateFare(from, to, quantity) + super.getLine().getReservationSurcharge()*quantity;
 	}
 	
+	public double calculateFare(Station from , Station to,int age,  int quantity){
+		//Total fare = NormalPassengerTrainFare + ReservationSurcharge
+		return super.calculateFare(from, to, age, quantity) + super.getLine().getReservationSurcharge()*quantity;
+	}
+	
 	public String toString(){
 		//return the information of the passenger Train followed by the word "Seat Reservation Req'd"
 		StringBuffer output = new StringBuffer();

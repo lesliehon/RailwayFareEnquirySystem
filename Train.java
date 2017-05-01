@@ -2,7 +2,6 @@
 //CREATE DATE:  7-APR-2011
 //RailwayFareEnquirySystem
 
-
 abstract class Train {
 	//Notes: Refer to test driver program "TestLine.java" and output file "TestLineOutput.txt" for details
 	//Attributes
@@ -75,6 +74,9 @@ abstract class Train {
 		
 	}
 	
+
+		
+	
 	public int getCrossBorderCount(Station from, Station to){
 		//Return the number of time(s) that the train travel across the border in the specified journey
 		int totalCrossBorderCount=0;
@@ -115,6 +117,37 @@ abstract class Train {
 		//Accept three data then return the total fare in double type by the formula:
 		//Total Fare = Distance Fare * quantity + Cross Border charge
 		return (calculateDistanceFare(from, to) + (line.getCrossBorderSurcharge()* getCrossBorderCount(from,to)) ) * quantity;
+	}
+	
+	public double calculateFare( Station from, Station to ,int age , int quantity){
+		double tmpFare = 0;
+		Station [] trainStops = null;
+		int fromIndex = -1, toIndex = -1;		
+		for(int stop = 0 ; stop < line.getStops().length ; stop++){
+			if(from.equals(line.getStops()[stop]))
+				fromIndex = stop;
+			if(to.equals(line.getStops()[stop]))
+				toIndex = stop;
+		}
+		if(fromIndex > toIndex ){//If the index of from is larger than to
+			trainStops = new Station [fromIndex - toIndex +1];
+			for(int i = 0 ; i < trainStops.length ; i++)
+				trainStops[i] = line.getStops()[fromIndex-i];
+		}
+		else if(toIndex > fromIndex){//If the index of to is larger than from
+			trainStops = new Station [toIndex - fromIndex +1];
+			for(int i = 0 ; i < trainStops.length ; i++)
+				trainStops[i] = line.getStops()[fromIndex+i];
+		}
+		
+		//Calculate fare
+		for(int i = 1 ; i < trainStops.length ; i++){
+			tmpFare += calculateDistanceFare( trainStops[i] , trainStops[i-1]) 
+													*trainStops[i].checkAgeDiscountRate(age);
+		}
+		//get border surcharge
+		tmpFare += (line.getCrossBorderSurcharge()* getCrossBorderCount(from,to));
+		return tmpFare * quantity;
 	}
 	
 	public String toString;
